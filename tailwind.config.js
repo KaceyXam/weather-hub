@@ -2,7 +2,14 @@
 export default {
 	content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
 	theme: {
-		extend: {},
+		extend: {
+			colors: {
+				"sky-blue": "#4875EA66",
+			},
+			gridTemplateColumns: {
+				"next-week": "auto 1fr auto",
+			},
+		},
 	},
 	plugins: [],
 };
