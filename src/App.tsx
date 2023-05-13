@@ -5,7 +5,6 @@ import NextWeek from "./components/NextWeek";
 
 function App() {
 	const [weather, setWeather] = useState<[Forecast]>();
-	const [today, setToday] = useState<Forecast>();
 	const [city, setCity] = useState<string>("Loading...");
 
 	useEffect(() => {
@@ -22,27 +21,24 @@ function App() {
 		});
 	}, []);
 
-	useEffect(() => {
-		if (weather) {
-			setToday(weather[0]);
-		}
-	}, [weather]);
-
 	return (
-		<>
-			{weather && today ? (
-				<section className="weather-wrapper">
-					<Current today={today} city={city} />
-					<ul className="forecast">
-						{weather.map((forecast) => (
-							<NextWeek key={forecast.number} forecast={forecast} />
-						))}
+		<main className=" w-full bg-blue-300 grid items-center justify-center min-h-screen">
+			{weather ? (
+				<section className="max-w-xl mx-auto flex flex-col items-center">
+					<Current today={weather[0]} city={city} />
+					<h2 className=" text-xl">Next Week</h2>
+					<ul className="flex flex-wrap justify-center gap-4">
+						{weather.map((forecast) => {
+							// Ignore first forecast
+							if (forecast.number != 1)
+								return <NextWeek key={forecast.number} forecast={forecast} />;
+						})}
 					</ul>
 				</section>
 			) : (
-				<h1 className=" text-3xl">Loading...</h1>
+				<h1 className=" text-3xl text-white">Loading...</h1>
 			)}
-		</>
+		</main>
 	);
 }
 
