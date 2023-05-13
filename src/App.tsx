@@ -1,43 +1,47 @@
+import { useEffect, useState } from "react";
+import { Forecast } from "./weatherTypes";
+import Current from "./components/Current";
+import NextWeek from "./components/NextWeek";
+
 function App() {
+	const [weather, setWeather] = useState<[Forecast]>();
+	const [today, setToday] = useState<Forecast>();
+	const [city, setCity] = useState<string>("Loading...");
+
+	useEffect(() => {
+		navigator.geolocation.getCurrentPosition(async (position) => {
+			let lat = position.coords.latitude;
+			let long = position.coords.longitude;
+
+			let data = await fetch(`https://api.weather.gov/points/${lat}%2C${long}`);
+			let json = await data.json();
+			setCity(json.properties.relativeLocation.properties.city);
+			let newData = await fetch(json.properties.forecast);
+			let newJson = await newData.json();
+			setWeather(newJson.properties.periods);
+		});
+	}, []);
+
+	useEffect(() => {
+		if (weather) {
+			setToday(weather[0]);
+		}
+	}, [weather]);
+
 	return (
 		<>
-			<form>
-				<input type="text" id="city" />
-				<button type="submit">Fetch Weather</button>
-			</form>
-			<section className="weather-wrapper">
-				<section>
-					<img src="/vite.svg" alt="Weather Icon" />
-					<div>
-						<h2>Today</h2>
-						<h1>City</h1>
-						<p>Temperature</p>
-						<p>Sky Conditions</p>
-					</div>
+			{weather && today ? (
+				<section className="weather-wrapper">
+					<Current today={today} city={city} />
+					<ul className="forecast">
+						{weather.map((forecast) => (
+							<NextWeek key={forecast.number} forecast={forecast} />
+						))}
+					</ul>
 				</section>
-				<ul className="next-4-days">
-					<li>
-						<h3>tomorrow</h3>
-						<img src="/vite.svg" alt="Weather Icon" />
-						<p>Temperature</p>
-					</li>
-					<li>
-						<h3>tomorrow</h3>
-						<img src="/vite.svg" alt="Weather Icon" />
-						<p>Temperature</p>
-					</li>
-					<li>
-						<h3>tomorrow</h3>
-						<img src="/vite.svg" alt="Weather Icon" />
-						<p>Temperature</p>
-					</li>
-					<li>
-						<h3>tomorrow</h3>
-						<img src="/vite.svg" alt="Weather Icon" />
-						<p>Temperature</p>
-					</li>
-				</ul>
-			</section>
+			) : (
+				<h1 className=" text-3xl">Loading...</h1>
+			)}
 		</>
 	);
 }
